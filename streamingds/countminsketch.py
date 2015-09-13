@@ -214,3 +214,15 @@ class CountMinSketch(Hashing):
         vals.reverse()
         r = dict([(i, vals[i]) for i in range(len(vals))])
         return r
+
+    def merge(self, other):
+        """merge the other CountMinSketch into the current instance."""
+        if self.bits_per_slice != other.bits_per_slice or self.slices != other.slices:
+            raise ValueError("Dimensions must be equal for merge.")
+
+        if self.k != other.k:
+            raise ValueError("k must be equal for merge.")
+
+        for i, k in enumerate(other.count):
+            for j, l in enumerate(k):
+                self.count[i][j] += l

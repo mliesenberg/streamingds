@@ -59,3 +59,23 @@ def test_bloom_filter(capacity, max_keys):
     if len(errors) > 0:
         actual = len(errors) / float(capacity)
         assert actual <= 0.01
+
+def test_bloom_filter_merge_different_capacity():
+    with pytest.raises(ValueError):
+        bf1 = BloomFilter(10)
+        bf2 = BloomFilter(20)
+
+        bf1.merge(bf2)
+
+def test_bloom_filter_merge_same_capacity():
+    bf1 = BloomFilter(10)
+    bf2 = BloomFilter(10)
+
+    value = "key"
+    bf2.add(value)
+
+    assert value in bf2
+    assert value not in bf1
+    bf1.merge(bf2)
+
+    assert value in bf1

@@ -106,3 +106,28 @@ def test_random_sketch(k, amount_keys, replays):
         with open(fn, 'wb') as f:
             pickle.dump(test, f)
         raise
+
+
+def test_merge_non_matching_parameters():
+    with pytest.raises(ValueError):
+        c1 = CountMinSketch(10 ** -7, 0.01, 50)
+        c2 = CountMinSketch(10 ** -8, 0.11, 50)
+
+        c1.merge(c2)
+
+
+def test_merge_matching_parameters():
+    c1 = CountMinSketch(10 ** -7, 0.01, 50)
+    c2 = CountMinSketch(10 ** -7, 0.01, 50)
+
+    c1.update('www.google.de', 10)
+    c1.update('www.linkedin.com', 5)
+
+    c2.update('www.bing.com', 12)
+    c2.update('www.google.de', 10)
+
+    c1.merge(c2)
+
+    assert c1.get('www.google.de') == 20
+    assert c1.get('www.linkedin.com') == 5
+    assert c1.get('www.bing.com') == 12

@@ -78,3 +78,13 @@ class BloomFilter(Hashing):
         m = self.bitarray.count(1)
         a = (self.slices * math.log(1 - (float(m) / self.slices)))
         return - a / self.bits_per_slice
+
+    def merge(self, other):
+        """Merge the other BloomFilter into the current one"""
+        if self._capacity != other._capacity:
+            raise ValueError("Capacity of filters must be equal for merge.")
+
+        if self._error_rate != other._error_rate:
+            raise ValueError("ErrorRate must be equal for merge.")
+
+        self._bitarray = self._bitarray | other._bitarray
