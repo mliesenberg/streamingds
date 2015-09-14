@@ -53,6 +53,7 @@ class Hashing(object):
     @property
     def seeds(self):
         if not hasattr(self, '_seeds'):
+            random.seed("hashing-seed-for-reproducibility")
             self._seeds = [random.randint(0, 2 ** 32)
                            for _ in range(self.bits_per_slice)]
         return self._seeds
