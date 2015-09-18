@@ -23,6 +23,7 @@ from random import randint
 import pytest
 
 from streamingds.bloomfilter import BloomFilter
+from streamingds.counting_bloomfilter import CountingBloomFilter
 
 
 def test_simple_bloomfilter():
@@ -59,3 +60,16 @@ def test_bloom_filter(capacity, max_keys):
     if len(errors) > 0:
         actual = len(errors) / float(capacity)
         assert actual <= 0.01
+
+
+def test_counting_filter():
+
+    cbf = CountingBloomFilter(1000)
+
+    cbf.add("google")
+
+    assert "google" in cbf
+
+    cbf.remove("google")
+
+    assert "google" not in cbf

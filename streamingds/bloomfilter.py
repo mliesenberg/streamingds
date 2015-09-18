@@ -60,21 +60,47 @@ class BloomFilter(Hashing):
         super(BloomFilter, self).__init__(num_slices, num_bits_per_slice)
 
     @property
-    def bitarray(self):
+    def filter(self):
         if not hasattr(self, '_bitarray'):
             self._bitarray = BitArray(self.slices)
         return self._bitarray
 
     def __contains__(self, key):
         """Check membership of a key in this filter."""
-        return self.bitarray.all(1, self.hash_values(key))
+        return self.filter.all(1, self.hash_values(key))
 
     def add(self, key):
         """Add a key to this filter."""
-        self.bitarray.set(1, self.hash_values(key))
+        self.filter.set(1, self.hash_values(key))
 
     def __len__(self):
         """Get the number of elements in the filter."""
-        m = self.bitarray.count(1)
+        m = self.filter.count(1)
         a = (self.slices * math.log(1 - (float(m) / self.slices)))
         return - a / self.bits_per_slice
+
+
+class CountingBloomFilter(BloomFilter):
+    """
+
+    """
+
+    def __init__(self, capacity, error_rate=0.001):
+        super(CountingBloomFilter, self).__init__(capacity, error_rate)
+
+    def add(self, key):
+        """Add a key to this filter."""
+        map(lambda x: self.filter[x] + 1, self.hash_values(key))
+
+    def remove(self, key):
+        map(lambda x: self.filter[x] - 1, self.hash_values(key))
+
+    def __contains__(self, key):
+        """Check membership of a key in this filter."""
+        return self.filter.all(1, self.hash_values(key))
+
+    @property
+    def filter(self):
+        if not hasattr(self, '_countingfilter'):
+            self._countingfilter = [0] * self.slices
+        return self._countingfilter
